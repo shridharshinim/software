@@ -1,0 +1,1534 @@
+<html class="scroll-smooth" lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   Batch Data Analysis and Visualization Web Platform
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+  <style>
+   html,
+    body {
+      font-family: 'Exo 2', sans-serif;
+      scroll-behavior: smooth;
+      background: #0f172a;
+      color: #e0e7ff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    /* Glassmorphism base */
+    .glass {
+      background: rgba(255 255 255 / 0.07);
+      backdrop-filter: saturate(180%) blur(12px);
+      -webkit-backdrop-filter: saturate(180%) blur(12px);
+      border: 1px solid rgba(255 255 255 / 0.15);
+    }
+    /* Neon glow */
+    .neon-glow {
+      text-shadow:
+        0 0 5px #7dd3fc,
+        0 0 10px #38bdf8,
+        0 0 20px #0ea5e9,
+        0 0 30px #0284c7,
+        0 0 40px #0369a1;
+    }
+    /* Soft neon glow for borders */
+    .border-neon {
+      border-color: #38bdf8;
+      box-shadow:
+        0 0 8px #38bdf8,
+        0 0 20px #0ea5e9;
+    }
+    /* Floating animation for particles */
+    @keyframes floatUpDown {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+    /* Pulse animation for buttons */
+    @keyframes pulseGlow {
+      0%, 100% {
+        box-shadow: 0 0 8px #38bdf8;
+      }
+      50% {
+        box-shadow: 0 0 20px #0ea5e9;
+      }
+    }
+    /* Micro animation for AI bubble */
+    @keyframes aiBubblePulse {
+      0%, 100% {
+        box-shadow: 0 0 10px #22d3ee;
+      }
+      50% {
+        box-shadow: 0 0 20px #06b6d4;
+      }
+    }
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #38bdf8;
+      border-radius: 10px;
+    }
+    /* Tooltip base */
+    .tooltip {
+      position: relative;
+      cursor: help;
+    }
+    .tooltip:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0ea5e9;
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      font-size: 0.75rem;
+      font-weight: 600;
+      box-shadow: 0 0 8px #0ea5e9;
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 50;
+    }
+    .tooltip::after {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      content: '';
+    }
+  </style>
+ </head>
+ <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-200">
+  <!-- Floating subtle particles background -->
+  <canvas class="fixed inset-0 -z-10" id="particles">
+  </canvas>
+  <!-- Theme toggle button -->
+  <button aria-label="Toggle Dark/Light Mode" class="fixed top-5 right-5 z-50 p-3 rounded-full glass border border-neon text-cyan-400 hover:text-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition" id="themeToggle">
+   <i class="fas fa-moon text-xl">
+   </i>
+  </button>
+  <!-- Navigation -->
+  <nav class="w-full max-w-7xl mx-auto px-6 py-4 flex justify-between items-center glass rounded-b-lg border border-neon shadow-neon-glow sticky top-0 z-40">
+   <a class="text-2xl font-extrabold neon-glow select-none" href="#home">
+    Batch Data Analysis
+   </a>
+   <ul class="hidden md:flex space-x-8 font-semibold text-cyan-300">
+    <li>
+     <a class="hover:text-cyan-400 transition" href="#home">
+      Home
+     </a>
+    </li>
+    <li>
+     <a class="hover:text-cyan-400 transition" href="#login">
+      Login/Register
+     </a>
+    </li>
+    <li>
+     <a class="hover:text-cyan-400 transition" href="#dashboard">
+      Dashboard
+     </a>
+    </li>
+    <li>
+     <a class="hover:text-cyan-400 transition" href="#data-cleaning">
+      Data Cleaning
+     </a>
+    </li>
+    <li>
+     <a class="hover:text-cyan-400 transition" href="#stat-analysis">
+      Statistical Analysis
+     </a>
+    </li>
+    <li>
+     <a class="hover:text-cyan-400 transition" href="#visualization">
+      Visualization
+     </a>
+    </li>
+    <li>
+     <a class="hover:text-cyan-400 transition" href="#settings">
+      Settings
+     </a>
+    </li>
+   </ul>
+   <button aria-label="Open Menu" class="md:hidden text-cyan-400 hover:text-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400" id="mobileMenuBtn">
+    <i class="fas fa-bars text-2xl">
+    </i>
+   </button>
+  </nav>
+  <!-- Mobile menu -->
+  <div class="fixed inset-0 bg-slate-900 bg-opacity-95 backdrop-blur-md z-50 hidden flex-col p-6 space-y-6" id="mobileMenu">
+   <button aria-label="Close Menu" class="self-end text-cyan-400 hover:text-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400" id="mobileMenuClose">
+    <i class="fas fa-times text-3xl">
+    </i>
+   </button>
+   <a class="text-2xl font-extrabold neon-glow select-none" href="#home" onclick="closeMobileMenu()">
+    Batch Data Analysis
+   </a>
+   <nav class="flex flex-col space-y-4 text-cyan-300 text-lg font-semibold">
+    <a class="hover:text-cyan-400 transition" href="#home" onclick="closeMobileMenu()">
+     Home
+    </a>
+    <a class="hover:text-cyan-400 transition" href="#login" onclick="closeMobileMenu()">
+     Login/Register
+    </a>
+    <a class="hover:text-cyan-400 transition" href="#dashboard" onclick="closeMobileMenu()">
+     Dashboard
+    </a>
+    <a class="hover:text-cyan-400 transition" href="#data-cleaning" onclick="closeMobileMenu()">
+     Data Cleaning
+    </a>
+    <a class="hover:text-cyan-400 transition" href="#stat-analysis" onclick="closeMobileMenu()">
+     Statistical Analysis
+    </a>
+    <a class="hover:text-cyan-400 transition" href="#visualization" onclick="closeMobileMenu()">
+     Visualization
+    </a>
+    <a class="hover:text-cyan-400 transition" href="#settings" onclick="closeMobileMenu()">
+     Settings
+    </a>
+   </nav>
+  </div>
+  <!-- Home Page -->
+  <section class="min-h-screen flex flex-col justify-center items-center px-6 text-center relative z-10" id="home">
+   <h1 class="text-5xl md:text-6xl font-extrabold neon-glow mb-6 max-w-4xl leading-tight">
+    Batch Data Analysis and Visualization Web Platform
+   </h1>
+   <p class="text-lg md:text-xl max-w-3xl text-cyan-300 mb-12">
+    Upload, analyze, and visualize multiple CSV files with ease. Empower your data-driven decisions with intelligent insights and stunning visuals.
+   </p>
+   <button aria-label="Get Started" class="relative inline-flex items-center justify-center px-10 py-4 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 font-semibold tracking-wide shadow-neon-glow hover:from-blue-500 hover:to-cyan-400 focus:outline-none focus:ring-4 focus:ring-cyan-400 transition animate-pulseGlow" id="getStartedBtn">
+    Get Started
+    <span class="absolute -right-4 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-cyan-400 animate-ping">
+    </span>
+   </button>
+   <!-- Friendly AI bubble -->
+   <div aria-live="polite" class="absolute bottom-10 left-6 md:left-20 max-w-xs glass rounded-3xl px-6 py-4 flex items-center space-x-4 shadow-neon-glow animate-aiBubblePulse cursor-default select-none" id="aiBubble">
+    <img alt="Friendly AI assistant robot face with glowing blue eyes and a smile, futuristic style" class="w-12 h-12 rounded-full border border-cyan-400 shadow-neon-glow" draggable="false" height="48" src="https://storage.googleapis.com/a1aa/image/256e2fb7-bc9d-4bd7-8af1-cf9743e1d1b2.jpg" width="48"/>
+    <p class="text-cyan-300 font-semibold text-lg">
+     Need help analyzing your data?
+    </p>
+   </div>
+  </section>
+  <!-- Login / Register Page -->
+  <section class="min-h-screen flex justify-center items-center px-6 py-16 bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-900 relative z-10" id="login">
+   <div class="glass max-w-md w-full rounded-3xl p-10 relative border border-neon shadow-neon-glow">
+    <h2 class="text-3xl font-extrabold text-cyan-400 mb-8 text-center neon-glow">
+     Login to Your Account
+    </h2>
+    <form class="space-y-6" id="loginForm" novalidate="">
+     <div class="relative">
+      <input aria-describedby="emailHelp" class="peer w-full rounded-lg bg-transparent border border-cyan-400 text-cyan-300 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 px-4 py-3" id="email" name="email" placeholder=" " required="" type="email"/>
+      <label class="absolute left-4 top-3 text-cyan-400 text-sm transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-cyan-600 peer-focus:top-1 peer-focus:text-sm peer-focus:text-cyan-400 select-none" for="email">
+       Email address
+      </label>
+     </div>
+     <div class="relative">
+      <input aria-describedby="passwordHelp" class="peer w-full rounded-lg bg-transparent border border-cyan-400 text-cyan-300 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 px-4 py-3" id="password" name="password" placeholder=" " required="" type="password"/>
+      <label class="absolute left-4 top-3 text-cyan-400 text-sm transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-cyan-600 peer-focus:top-1 peer-focus:text-sm peer-focus:text-cyan-400 select-none" for="password">
+       Password
+      </label>
+     </div>
+     <button class="w-full py-3 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 font-semibold shadow-neon-glow hover:from-blue-500 hover:to-cyan-400 focus:outline-none focus:ring-4 focus:ring-cyan-400 transition" type="submit">
+      Login
+     </button>
+    </form>
+    <div class="mt-6 flex justify-between text-cyan-300 text-sm font-semibold">
+     <a class="hover:text-cyan-400 transition" href="#register">
+      Sign up
+     </a>
+     <a class="hover:text-cyan-400 transition" href="#forgot-password">
+      Forgot password?
+     </a>
+    </div>
+    <div class="mt-8 text-center text-cyan-300 font-semibold">
+     or
+    </div>
+    <button aria-label="Sign in with Google" class="mt-6 w-full flex items-center justify-center space-x-3 py-3 rounded-full border border-cyan-400 text-cyan-300 hover:bg-cyan-400 hover:text-slate-900 transition focus:outline-none focus:ring-4 focus:ring-cyan-400" id="googleSignIn">
+     <img alt="Google logo with red, blue, yellow and green colors" class="w-6 h-6" draggable="false" height="24" src="https://storage.googleapis.com/a1aa/image/fa7ca9fe-a79c-4171-2919-c4ef091aa913.jpg" width="24"/>
+     <span>
+      Sign in with Google
+     </span>
+    </button>
+    <!-- Floating icons -->
+    <div class="absolute -top-8 -right-8 flex space-x-4">
+     <i class="fas fa-user-circle text-cyan-400 text-4xl animate-floatUpDown">
+     </i>
+     <i class="fas fa-lock text-blue-400 text-3xl animate-floatUpDown" style="animation-delay: 0.3s;">
+     </i>
+     <i class="fas fa-envelope text-cyan-300 text-3xl animate-floatUpDown" style="animation-delay: 0.6s;">
+     </i>
+    </div>
+   </div>
+  </section>
+  <!-- File Upload & Management Dashboard -->
+  <section class="min-h-screen bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-900 px-6 py-12 relative z-10" id="dashboard">
+   <h2 class="text-4xl font-extrabold neon-glow mb-8 text-center text-cyan-400">
+    File Upload &amp; Management Dashboard
+   </h2>
+   <div aria-label="Drag and drop CSV files here or click to upload" class="glass max-w-4xl mx-auto rounded-3xl border border-neon shadow-neon-glow p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-cyan-900/20 transition" id="uploadZone" tabindex="0">
+    <i class="fas fa-file-upload text-6xl text-cyan-400 mb-4 animate-floatUpDown">
+    </i>
+    <p class="text-cyan-300 font-semibold text-lg mb-2">
+     Drag &amp; Drop CSV files here or click to select
+    </p>
+    <p class="text-cyan-400 text-sm">
+     Supports multiple files. Max size 10MB each.
+    </p>
+    <input accept=".csv,text/csv" aria-hidden="true" class="hidden" id="fileInput" multiple="" type="file"/>
+   </div>
+   <div class="max-w-6xl mx-auto mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" id="fileCardsContainer">
+    <!-- File cards will be dynamically inserted here -->
+   </div>
+   <!-- Toast container for error alerts -->
+   <div class="fixed bottom-6 right-6 space-y-4 z-50" id="toastContainer">
+   </div>
+  </section>
+  <!-- Data Cleaning Page -->
+  <section class="min-h-screen bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-900 px-6 py-12 relative z-10" id="data-cleaning">
+   <h2 class="text-4xl font-extrabold neon-glow mb-8 text-center text-cyan-400">
+    Data Cleaning
+   </h2>
+   <div class="max-w-6xl mx-auto glass rounded-3xl border border-neon shadow-neon-glow p-8 space-y-8">
+    <div class="space-y-4" id="missingValuesSection">
+     <h3 class="text-2xl font-semibold text-cyan-300">
+      Missing Values Per Column
+     </h3>
+     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="missingValuesList">
+      <!-- Missing value cards inserted here -->
+     </div>
+    </div>
+    <div class="space-y-4" id="dataTypeIssuesSection">
+     <h3 class="text-2xl font-semibold text-cyan-300">
+      Incorrect Data Types &amp; Fix Suggestions
+     </h3>
+     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="dataTypeIssuesList">
+      <!-- Data type issue cards inserted here -->
+     </div>
+    </div>
+    <div class="w-full bg-slate-800 rounded-full h-6 overflow-hidden border border-cyan-400 shadow-neon-glow">
+     <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="0" class="h-6 bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-700 ease-in-out" id="cleaningProgressBar" role="progressbar" style="width: 0%">
+     </div>
+    </div>
+    <p class="text-cyan-300 font-semibold text-center mt-2" id="cleaningStatus">
+     No cleaning in progress
+    </p>
+   </div>
+  </section>
+  <!-- Statistical Analysis Page -->
+  <section class="min-h-screen bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-900 px-6 py-12 relative z-10" id="stat-analysis">
+   <h2 class="text-4xl font-extrabold neon-glow mb-8 text-center text-cyan-400">
+    Statistical Analysis
+   </h2>
+   <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="glass rounded-3xl border border-neon shadow-neon-glow p-6 flex flex-col space-y-6">
+     <h3 class="text-2xl font-semibold text-cyan-300 mb-4">
+      Central Tendency
+     </h3>
+     <div class="space-y-4">
+      <div class="stat-card flex items-center space-x-4 p-4 rounded-lg border border-cyan-400 shadow-neon-glow hover:scale-105 transition cursor-default">
+       <i class="fas fa-calculator text-cyan-400 text-3xl">
+       </i>
+       <div>
+        <p class="text-cyan-300 font-semibold">
+         Mean
+        </p>
+        <p class="text-lg font-bold text-slate-100" id="meanValue">
+         -
+        </p>
+       </div>
+      </div>
+      <div class="stat-card flex items-center space-x-4 p-4 rounded-lg border border-cyan-400 shadow-neon-glow hover:scale-105 transition cursor-default">
+       <i class="fas fa-chart-line text-cyan-400 text-3xl">
+       </i>
+       <div>
+        <p class="text-cyan-300 font-semibold">
+         Median
+        </p>
+        <p class="text-lg font-bold text-slate-100" id="medianValue">
+         -
+        </p>
+       </div>
+      </div>
+      <div class="stat-card flex items-center space-x-4 p-4 rounded-lg border border-cyan-400 shadow-neon-glow hover:scale-105 transition cursor-default">
+       <i class="fas fa-star text-cyan-400 text-3xl">
+       </i>
+       <div>
+        <p class="text-cyan-300 font-semibold">
+         Mode
+        </p>
+        <p class="text-lg font-bold text-slate-100" id="modeValue">
+         -
+        </p>
+       </div>
+      </div>
+     </div>
+    </div>
+    <div class="glass rounded-3xl border border-neon shadow-neon-glow p-6 flex flex-col space-y-6">
+     <h3 class="text-2xl font-semibold text-cyan-300 mb-4">
+      Dispersion
+     </h3>
+     <div class="stat-card flex items-center space-x-4 p-4 rounded-lg border border-cyan-400 shadow-neon-glow hover:scale-105 transition cursor-default">
+      <i class="fas fa-chart-area text-cyan-400 text-4xl">
+      </i>
+      <div>
+       <p class="text-cyan-300 font-semibold">
+        Standard Deviation
+       </p>
+       <p class="text-lg font-bold text-slate-100" id="stdDevValue">
+        -
+       </p>
+      </div>
+     </div>
+    </div>
+    <div class="glass rounded-3xl border border-neon shadow-neon-glow p-6 flex flex-col space-y-6 overflow-auto max-h-[480px]">
+     <h3 class="text-2xl font-semibold text-cyan-300 mb-4">
+      Correlation Matrix
+     </h3>
+     <div class="overflow-auto rounded-lg border border-cyan-400 shadow-neon-glow">
+      <table class="w-full text-sm text-left text-cyan-300 border-collapse border border-cyan-400" id="correlationTable">
+       <thead class="bg-cyan-900/40 sticky top-0">
+        <tr>
+         <th class="border border-cyan-400 px-3 py-2">
+          Column
+         </th>
+         <th class="border border-cyan-400 px-3 py-2">
+          Col 1
+         </th>
+         <th class="border border-cyan-400 px-3 py-2">
+          Col 2
+         </th>
+         <th class="border border-cyan-400 px-3 py-2">
+          Col 3
+         </th>
+         <th class="border border-cyan-400 px-3 py-2">
+          Col 4
+         </th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td class="border border-cyan-400 px-3 py-2 font-semibold">
+          Col 1
+         </td>
+         <td class="border border-cyan-400 px-3 py-2 bg-cyan-700/50">
+          1.00
+         </td>
+         <td class="border border-cyan-400 px-3 py-2 bg-cyan-700/20">
+          0.45
+         </td>
+         <td class="border border-cyan-400 px-3 py-2 bg-cyan-700/10">
+          -0.12
+         </td>
+         <td class="border border-cyan-400 px-3 py-2 bg-cyan-700/20">
+          0.33
+         </td>
+        </tr>
+        <tr>
+         <td class="border border-cyan-400 px-3 py-2 font-semibold">
+          Col 2
+         </td>
+         <td class="border border-cyan-400 px-3 py-2 bg-cyan-700/20">
+          0.45
+         </td>
+         <td class="border border-cyan-400 px-3 py-2 bg-cyan-700/50">
+          1.00
+         </td>
+         <td class="border border-cyan-400 px-3 py-2 bg-cyan-700/30">
+          0.22
+         </td>
+         <td class="border border-cyan-400 px-3 py-2 bg-cyan-700/10">
+          -0.05
+         </td>
+        </tr>
+        <tr>
+         <td class="border border-cyan-400 px-3 py-2 font-semibold">
+          Col 3
+         </td>
+         <td class="border border-cyan-400 px-3 py-2 bg-cyan-700/10">
+          -0.12
+         </td>
+         <td class="border border-cyan-400 px-3 py-2 bg-cyan-700/30">
+          0.22
+         </td>
+         <td class="border border-cyan-400 px-3 py-2 bg-cyan-700/50">
+          1.00
+         </td>
+         <td class="border border-cyan-400 px-3 py-2 bg-cyan-700/40">
+          0.67
+         </td>
+        </tr>
+        <tr>
+         <td class="border border-cyan-400 px-3 py-2 font-semibold">
+          Col 4
+         </td>
+         <td class="border border-cyan-400 px-3 py-2 bg-cyan-700/20">
+          0.33
+         </td>
+         <td class="border border-cyan-400 px-3 py-2 bg-cyan-700/10">
+          -0.05
+         </td>
+         <td class="border border-cyan-400 px-3 py-2 bg-cyan-700/40">
+          0.67
+         </td>
+         <td class="border border-cyan-400 px-3 py-2 bg-cyan-700/50">
+          1.00
+         </td>
+        </tr>
+       </tbody>
+      </table>
+     </div>
+     <button class="mt-4 self-center px-6 py-3 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 font-semibold shadow-neon-glow hover:from-blue-500 hover:to-cyan-400 focus:outline-none focus:ring-4 focus:ring-cyan-400 transition" id="downloadCSVBtn">
+      Download as CSV
+     </button>
+    </div>
+   </div>
+  </section>
+  <!-- Visualization Page -->
+  <section class="min-h-screen bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-900 px-6 py-12 relative z-10" id="visualization">
+   <h2 class="text-4xl font-extrabold neon-glow mb-8 text-center text-cyan-400">
+    Visualization
+   </h2>
+   <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <div class="glass rounded-3xl border border-neon shadow-neon-glow p-6 flex flex-col space-y-6">
+     <label class="text-cyan-300 font-semibold" for="chartType">
+      Select Chart Type
+     </label>
+     <select aria-label="Select chart type" class="bg-transparent border border-cyan-400 rounded-lg p-3 text-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400" id="chartType">
+      <option value="histogram">
+       Histogram
+      </option>
+      <option value="scatter">
+       Scatter
+      </option>
+      <option value="bar">
+       Bar
+      </option>
+      <option value="pie">
+       Pie
+      </option>
+      <option value="heatmap">
+       Heatmap
+      </option>
+     </select>
+     <label class="text-cyan-300 font-semibold" for="xAxis">
+      Choose X Axis Column
+     </label>
+     <select aria-label="Select X axis column" class="bg-transparent border border-cyan-400 rounded-lg p-3 text-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400" id="xAxis">
+      <option disabled="" selected="" value="">
+       Select column
+      </option>
+     </select>
+     <label class="text-cyan-300 font-semibold" for="yAxis">
+      Choose Y Axis Column
+     </label>
+     <select aria-label="Select Y axis column" class="bg-transparent border border-cyan-400 rounded-lg p-3 text-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400" id="yAxis">
+      <option disabled="" selected="" value="">
+       Select column
+      </option>
+     </select>
+     <button class="mt-auto px-6 py-3 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 font-semibold shadow-neon-glow hover:from-blue-500 hover:to-cyan-400 focus:outline-none focus:ring-4 focus:ring-cyan-400 transition" id="exportPNGBtn">
+      Export as PNG
+     </button>
+     <button class="mt-2 px-6 py-3 rounded-full border border-cyan-400 text-cyan-300 font-semibold shadow-neon-glow hover:bg-cyan-900/30 focus:outline-none focus:ring-4 focus:ring-cyan-400 transition" id="fullScreenBtn">
+      View Full Screen
+     </button>
+    </div>
+    <div class="glass rounded-3xl border border-neon shadow-neon-glow p-6 col-span-3 flex flex-col">
+     <canvas aria-label="Data visualization chart" class="rounded-lg shadow-neon-glow" id="chartCanvas" role="img">
+     </canvas>
+    </div>
+   </div>
+   <!-- Floating help icon -->
+   <button aria-label="Want to try a heatmap instead?" class="fixed bottom-24 right-6 bg-cyan-700/70 glass rounded-full p-4 shadow-neon-glow hover:bg-cyan-600 transition focus:outline-none focus:ring-4 focus:ring-cyan-400 z-50" id="helpHeatmapBtn" title="Want to try a heatmap instead?">
+    <i class="fas fa-lightbulb text-cyan-300 text-xl">
+    </i>
+   </button>
+  </section>
+  <!-- Dashboard View -->
+  <section class="min-h-screen bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-900 px-6 py-12 relative z-10" id="dashboard-view">
+   <h2 class="text-4xl font-extrabold neon-glow mb-8 text-center text-cyan-400">
+    Dashboard View
+   </h2>
+   <div class="max-w-7xl mx-auto glass rounded-3xl border border-neon shadow-neon-glow p-8">
+    <div class="flex flex-col md:flex-row md:space-x-6 space-y-6 md:space-y-0">
+     <input aria-label="Filter datasets by name" class="flex-1 bg-transparent border border-cyan-400 rounded-lg p-3 text-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400" id="filterDataset" placeholder="Filter by dataset name" type="text"/>
+     <input aria-label="Filter datasets by column" class="flex-1 bg-transparent border border-cyan-400 rounded-lg p-3 text-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400" id="filterColumn" placeholder="Filter by column" type="text"/>
+     <button class="px-6 py-3 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 font-semibold shadow-neon-glow hover:from-blue-500 hover:to-cyan-400 focus:outline-none focus:ring-4 focus:ring-cyan-400 transition" id="saveReportBtn">
+      Save Combined Report as PDF
+     </button>
+    </div>
+    <div class="mt-8">
+     <div class="tabs flex border-b border-cyan-400 text-cyan-300 font-semibold space-x-6">
+      <button aria-selected="true" class="tab-btn py-2 px-4 border-b-4 border-transparent hover:border-cyan-400 focus:outline-none focus:border-cyan-400 transition" data-tab="datasets" role="tab" tabindex="0">
+       Datasets
+      </button>
+      <button aria-selected="false" class="tab-btn py-2 px-4 border-b-4 border-transparent hover:border-cyan-400 focus:outline-none focus:border-cyan-400 transition" data-tab="analysis" role="tab" tabindex="-1">
+       Analysis Summary
+      </button>
+      <button aria-selected="false" class="tab-btn py-2 px-4 border-b-4 border-transparent hover:border-cyan-400 focus:outline-none focus:border-cyan-400 transition" data-tab="visualizations" role="tab" tabindex="-1">
+       Visualizations
+      </button>
+     </div>
+     <div class="mt-6 text-cyan-300" id="tabContent">
+      <div class="tab-panel grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="datasets" role="tabpanel" tabindex="0">
+       <!-- Dataset cards -->
+       <div class="glass rounded-3xl border border-neon shadow-neon-glow p-6">
+        <h4 class="text-xl font-semibold mb-2">
+         Dataset 1
+        </h4>
+        <p class="text-cyan-400 mb-4">
+         Uploaded: 2024-06-01
+        </p>
+        <p class="text-sm">
+         Columns: Age, Salary, Department
+        </p>
+        <p class="text-sm">
+         Rows: 1500
+        </p>
+       </div>
+       <div class="glass rounded-3xl border border-neon shadow-neon-glow p-6">
+        <h4 class="text-xl font-semibold mb-2">
+         Dataset 2
+        </h4>
+        <p class="text-cyan-400 mb-4">
+         Uploaded: 2024-06-03
+        </p>
+        <p class="text-sm">
+         Columns: Temperature, Humidity, Location
+        </p>
+        <p class="text-sm">
+         Rows: 800
+        </p>
+       </div>
+       <div class="glass rounded-3xl border border-neon shadow-neon-glow p-6">
+        <h4 class="text-xl font-semibold mb-2">
+         Dataset 3
+        </h4>
+        <p class="text-cyan-400 mb-4">
+         Uploaded: 2024-06-05
+        </p>
+        <p class="text-sm">
+         Columns: Product, Sales, Region
+        </p>
+        <p class="text-sm">
+         Rows: 2300
+        </p>
+       </div>
+      </div>
+      <div class="tab-panel hidden" id="analysis" role="tabpanel" tabindex="0">
+       <p class="text-cyan-300">
+        Summary of statistical analyses and data cleaning results will appear here.
+       </p>
+      </div>
+      <div class="tab-panel hidden" id="visualizations" role="tabpanel" tabindex="0">
+       <p class="text-cyan-300">
+        All generated charts and visualizations will be displayed here.
+       </p>
+      </div>
+     </div>
+    </div>
+   </div>
+  </section>
+  <!-- Settings Page -->
+  <section class="min-h-screen bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-900 px-6 py-12 relative z-10" id="settings">
+   <h2 class="text-4xl font-extrabold neon-glow mb-8 text-center text-cyan-400">
+    Settings
+   </h2>
+   <form class="max-w-3xl mx-auto glass rounded-3xl border border-neon shadow-neon-glow p-8 space-y-8" id="settingsForm">
+    <div>
+     <label class="flex items-center space-x-4 cursor-pointer select-none" for="darkLightSwitch">
+      <span class="text-cyan-300 font-semibold text-lg">
+       Dark / Light Mode
+      </span>
+      <div class="relative">
+       <input class="sr-only" id="darkLightSwitch" type="checkbox"/>
+       <div class="w-14 h-8 bg-cyan-700 rounded-full shadow-inner">
+       </div>
+       <div class="dot absolute left-1 top-1 w-6 h-6 bg-cyan-400 rounded-full transition">
+       </div>
+      </div>
+     </label>
+    </div>
+    <div>
+     <label class="block mb-2 text-cyan-300 font-semibold" for="fontSelect">
+      Font Preference
+     </label>
+     <select aria-label="Select font preference" class="w-full bg-transparent border border-cyan-400 rounded-lg p-3 text-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400" id="fontSelect">
+      <option selected="" value="exo2">
+       Exo 2 (Default)
+      </option>
+      <option value="roboto">
+       Roboto
+      </option>
+      <option value="inter">
+       Inter
+      </option>
+      <option value="poppins">
+       Poppins
+      </option>
+     </select>
+    </div>
+    <div>
+     <label class="block mb-2 text-cyan-300 font-semibold" for="languageSelect">
+      Language Preference
+     </label>
+     <select aria-label="Select language preference" class="w-full bg-transparent border border-cyan-400 rounded-lg p-3 text-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400" id="languageSelect">
+      <option selected="" value="en">
+       English
+      </option>
+      <option value="es">
+       Spanish
+      </option>
+      <option value="fr">
+       French
+      </option>
+      <option value="de">
+       German
+      </option>
+      <option value="zh">
+       Chinese
+      </option>
+     </select>
+    </div>
+    <div class="flex space-x-6 justify-center">
+     <button class="px-8 py-3 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 font-semibold shadow-neon-glow hover:from-blue-500 hover:to-cyan-400 focus:outline-none focus:ring-4 focus:ring-cyan-400 transition" type="submit">
+      Save Settings
+     </button>
+     <button class="px-8 py-3 rounded-full border border-cyan-400 text-cyan-300 font-semibold shadow-neon-glow hover:bg-cyan-900/30 focus:outline-none focus:ring-4 focus:ring-cyan-400 transition" type="reset">
+      Reset Settings
+     </button>
+    </div>
+    <div class="mt-6 flex justify-center space-x-6">
+     <div class="w-20 h-20 rounded-lg glass border border-neon shadow-neon-glow animate-pulseGlow">
+     </div>
+     <div class="w-20 h-20 rounded-lg glass border border-neon shadow-neon-glow animate-pulseGlow animation-delay-200">
+     </div>
+     <div class="w-20 h-20 rounded-lg glass border border-neon shadow-neon-glow animate-pulseGlow animation-delay-400">
+     </div>
+    </div>
+   </form>
+  </section>
+  <!-- Built-in AI Assistant Chat Bubble -->
+  <div aria-label="Open AI Assistant chat" class="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-cyan-700/90 glass border border-cyan-400 shadow-neon-glow flex items-center justify-center cursor-pointer hover:bg-cyan-600 transition z-50" id="aiAssistant" role="button" tabindex="0">
+   <i class="fas fa-robot text-cyan-300 text-2xl">
+   </i>
+  </div>
+  <!-- AI Chat Window -->
+  <div aria-labelledby="aiChatTitle" aria-modal="true" class="fixed bottom-24 right-6 w-80 max-w-full max-h-[480px] glass rounded-3xl border border-neon shadow-neon-glow flex flex-col overflow-hidden hidden z-50" id="aiChatWindow" role="dialog">
+   <header class="flex items-center justify-between bg-cyan-900/80 px-4 py-3 border-b border-cyan-400">
+    <h3 class="text-cyan-300 font-extrabold text-lg" id="aiChatTitle">
+     AI Assistant
+    </h3>
+    <button aria-label="Close AI Assistant chat" class="text-cyan-300 hover:text-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded" id="closeAiChat">
+     <i class="fas fa-times">
+     </i>
+    </button>
+   </header>
+   <div aria-live="polite" aria-relevant="additions" class="flex-1 p-4 overflow-y-auto text-cyan-300 space-y-3" id="aiChatMessages" tabindex="0">
+   </div>
+   <form class="flex border-t border-cyan-400 p-3 space-x-3" id="aiChatForm">
+    <button aria-label="Voice input" class="text-cyan-300 hover:text-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded px-3 py-2" id="voiceInputBtn" type="button">
+     <i class="fas fa-microphone">
+     </i>
+    </button>
+    <input aria-label="Type your message to AI assistant" autocomplete="off" class="flex-1 bg-transparent border border-cyan-400 rounded-lg px-4 py-2 text-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400" id="aiChatInput" placeholder="Ask me anything..." required="" type="text"/>
+    <button class="bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 rounded-lg px-4 py-2 font-semibold shadow-neon-glow hover:from-blue-500 hover:to-cyan-400 focus:outline-none focus:ring-4 focus:ring-cyan-400 transition" type="submit">
+     Send
+    </button>
+   </form>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js">
+  </script>
+  <script>
+   // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const mobileMenuClose = document.getElementById('mobileMenuClose');
+
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.remove('hidden');
+      mobileMenu.classList.add('flex');
+    });
+    mobileMenuClose.addEventListener('click', () => {
+      mobileMenu.classList.add('hidden');
+      mobileMenu.classList.remove('flex');
+    });
+    function closeMobileMenu() {
+      mobileMenu.classList.add('hidden');
+      mobileMenu.classList.remove('flex');
+    }
+
+    // Theme toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const htmlEl = document.documentElement;
+    let darkMode = true;
+
+    function updateTheme() {
+      if (darkMode) {
+        htmlEl.classList.add('dark');
+        htmlEl.style.background = 'linear-gradient(135deg, #0f172a, #1e293b)';
+        themeToggle.innerHTML = '<i class="fas fa-sun text-yellow-400 text-xl"></i>';
+      } else {
+        htmlEl.classList.remove('dark');
+        htmlEl.style.background = 'linear-gradient(135deg, #e0f2fe, #bae6fd)';
+        themeToggle.innerHTML = '<i class="fas fa-moon text-blue-900 text-xl"></i>';
+      }
+    }
+    updateTheme();
+
+    themeToggle.addEventListener('click', () => {
+      darkMode = !darkMode;
+      updateTheme();
+    });
+
+    // Get Started button animation and scroll to dashboard
+    const getStartedBtn = document.getElementById('getStartedBtn');
+    getStartedBtn.addEventListener('click', () => {
+      document.getElementById('dashboard').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Floating particles background
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let particlesArray = [];
+    const colors = ['#0ea5e9', '#38bdf8', '#7dd3fc', '#22d3ee'];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.radius = Math.random() * 1.5 + 0.5;
+        this.color = colors[Math.floor(Math.random() * colors.length)];
+        this.speedX = (Math.random() - 0.5) * 0.3;
+        this.speedY = (Math.random() - 0.5) * 0.3;
+        this.alpha = Math.random() * 0.5 + 0.2;
+        this.alphaChange = 0.005 * (Math.random() > 0.5 ? 1 : -1);
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.alpha += this.alphaChange;
+        if (this.alpha <= 0.2 || this.alpha >= 0.7) this.alphaChange *= -1;
+        if (this.x < 0) this.x = canvas.width;
+        if (this.x > canvas.width) this.x = 0;
+        if (this.y < 0) this.y = canvas.height;
+        if (this.y > canvas.height) this.y = 0;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${hexToRgb(this.color)},${this.alpha})`;
+        ctx.fill();
+      }
+    }
+    function hexToRgb(hex) {
+      hex = hex.replace('#', '');
+      const bigint = parseInt(hex, 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return `${r},${g},${b}`;
+    }
+    function initParticles() {
+      particlesArray = [];
+      for (let i = 0; i < 120; i++) {
+        particlesArray.push(new Particle());
+      }
+    }
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particlesArray.forEach((p) => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animateParticles);
+    }
+    initParticles();
+    animateParticles();
+
+    // File Upload & Management Dashboard Logic
+    const uploadZone = document.getElementById('uploadZone');
+    const fileInput = document.getElementById('fileInput');
+    const fileCardsContainer = document.getElementById('fileCardsContainer');
+    const toastContainer = document.getElementById('toastContainer');
+
+    let uploadedFiles = [];
+
+    function showToast(message, type = 'error') {
+      const toast = document.createElement('div');
+      toast.className = `glass border border-neon shadow-neon-glow px-6 py-3 rounded-lg max-w-xs text-sm font-semibold ${
+        type === 'error' ? 'text-red-400 border-red-400' : 'text-green-400 border-green-400'
+      } animate-pulseGlow`;
+      toast.textContent = message;
+      toastContainer.appendChild(toast);
+      setTimeout(() => {
+        toast.remove();
+      }, 4000);
+    }
+
+    function validateFile(file) {
+      const maxSizeMB = 10;
+      if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+        showToast(`File "${file.name}" is not a CSV file.`);
+        return false;
+      }
+      if (file.size > maxSizeMB * 1024 * 1024) {
+        showToast(`File "${file.name}" exceeds the 10MB size limit.`);
+        return false;
+      }
+      return true;
+    }
+
+    function parseCSVPreview(text) {
+      const lines = text.trim().split('\n');
+      const previewLines = lines.slice(0, 6); // header + 5 rows
+      const rows = previewLines.map((line) => line.split(','));
+      return rows;
+    }
+
+    function createFileCard(file, previewRows) {
+      const card = document.createElement('div');
+      card.className = 'glass rounded-3xl border border-neon shadow-neon-glow p-6 flex flex-col';
+
+      // Header with file name and actions
+      const header = document.createElement('div');
+      header.className = 'flex justify-between items-center mb-4';
+
+      const fileNameInput = document.createElement('input');
+      fileNameInput.type = 'text';
+      fileNameInput.value = file.name;
+      fileNameInput.className =
+        'bg-transparent border-b border-cyan-400 text-cyan-300 font-semibold text-lg focus:outline-none focus:border-blue-400 w-2/3 truncate';
+      fileNameInput.title = 'Rename file';
+      fileNameInput.setAttribute('aria-label', `Rename file ${file.name}`);
+
+      fileNameInput.addEventListener('change', () => {
+        const newName = fileNameInput.value.trim();
+        if (newName === '') {
+          showToast('File name cannot be empty.');
+          fileNameInput.value = file.name;
+          return;
+        }
+        if (uploadedFiles.some((f) => f.name === newName && f !== file)) {
+          showToast('Another file with this name already exists.');
+          fileNameInput.value = file.name;
+          return;
+        }
+        file.name = newName;
+      });
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className =
+        'text-red-500 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-red-400 rounded';
+      deleteBtn.setAttribute('aria-label', `Delete file ${file.name}`);
+      deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+      deleteBtn.addEventListener('click', () => {
+        uploadedFiles = uploadedFiles.filter((f) => f !== file);
+        card.remove();
+        showToast(`Deleted file "${file.name}"`, 'success');
+        updateColumnSelectors();
+      });
+
+      header.appendChild(fileNameInput);
+      header.appendChild(deleteBtn);
+      card.appendChild(header);
+
+      // Preview table
+      const tableWrapper = document.createElement('div');
+      tableWrapper.className = 'overflow-auto max-h-40 rounded-lg border border-cyan-400 shadow-neon-glow';
+
+      const table = document.createElement('table');
+      table.className = 'w-full text-sm text-left text-cyan-300 border-collapse border border-cyan-400';
+
+      const thead = document.createElement('thead');
+      thead.className = 'bg-cyan-900/40 sticky top-0';
+      const headerRow = document.createElement('tr');
+      previewRows[0].forEach((col) => {
+        const th = document.createElement('th');
+        th.className = 'border border-cyan-400 px-2 py-1';
+        th.textContent = col;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+      previewRows.slice(1).forEach((row) => {
+        const tr = document.createElement('tr');
+        row.forEach((cell) => {
+          const td = document.createElement('td');
+          td.className = 'border border-cyan-400 px-2 py-1';
+          td.textContent = cell;
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+
+      tableWrapper.appendChild(table);
+      card.appendChild(tableWrapper);
+
+      // Column selector tags
+      const columnSelectorWrapper = document.createElement('div');
+      columnSelectorWrapper.className = 'mt-4 flex flex-wrap gap-2';
+
+      previewRows[0].forEach((col) => {
+        const tag = document.createElement('span');
+        tag.className =
+          'inline-flex items-center space-x-2 bg-cyan-700/40 border border-cyan-400 rounded-full px-3 py-1 text-sm cursor-pointer hover:bg-cyan-600 transition select-none';
+        tag.textContent = col;
+        tag.setAttribute('tabindex', '0');
+        tag.setAttribute('role', 'button');
+        tag.setAttribute('aria-pressed', 'false');
+
+        tag.addEventListener('click', () => {
+          const pressed = tag.getAttribute('aria-pressed') === 'true';
+          tag.setAttribute('aria-pressed', String(!pressed));
+          tag.classList.toggle('bg-cyan-600');
+        });
+        tag.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            tag.click();
+          }
+        });
+
+        columnSelectorWrapper.appendChild(tag);
+      });
+
+      card.appendChild(columnSelectorWrapper);
+
+      return card;
+    }
+
+    function updateColumnSelectors() {
+      // Update column selectors on visualization page
+      const xAxisSelect = document.getElementById('xAxis');
+      const yAxisSelect = document.getElementById('yAxis');
+      xAxisSelect.innerHTML = '<option value="" disabled selected>Select column</option>';
+      yAxisSelect.innerHTML = '<option value="" disabled selected>Select column</option>';
+
+      if (uploadedFiles.length === 0) return;
+
+      // Use first file's columns for selectors
+      const firstFile = uploadedFiles[0];
+      const previewRows = firstFile.previewRows;
+      if (!previewRows) return;
+
+      previewRows[0].forEach((col) => {
+        const optionX = document.createElement('option');
+        optionX.value = col;
+        optionX.textContent = col;
+        xAxisSelect.appendChild(optionX);
+
+        const optionY = document.createElement('option');
+        optionY.value = col;
+        optionY.textContent = col;
+        yAxisSelect.appendChild(optionY);
+      });
+    }
+
+    uploadZone.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.classList.add('bg-cyan-900/30');
+    });
+    uploadZone.addEventListener('dragleave', () => {
+      uploadZone.classList.remove('bg-cyan-900/30');
+    });
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('bg-cyan-900/30');
+      handleFiles(e.dataTransfer.files);
+    });
+
+    fileInput.addEventListener('change', () => {
+      handleFiles(fileInput.files);
+      fileInput.value = '';
+    });
+
+    function handleFiles(files) {
+      const validFiles = [];
+      for (const file of files) {
+        if (validateFile(file)) {
+          validFiles.push(file);
+        }
+      }
+      if (validFiles.length === 0) return;
+
+      validFiles.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const text = e.target.result;
+          const previewRows = parseCSVPreview(text);
+          file.previewRows = previewRows;
+          uploadedFiles.push(file);
+          const card = createFileCard(file, previewRows);
+          fileCardsContainer.appendChild(card);
+          updateColumnSelectors();
+          showToast(`Uploaded "${file.name}"`, 'success');
+        };
+        reader.readAsText(file);
+      });
+    }
+
+    // Data Cleaning Page Logic (mocked for demo)
+    const missingValuesList = document.getElementById('missingValuesList');
+    const dataTypeIssuesList = document.getElementById('dataTypeIssuesList');
+    const cleaningProgressBar = document.getElementById('cleaningProgressBar');
+    const cleaningStatus = document.getElementById('cleaningStatus');
+
+    // Sample data for missing values and data type issues
+    const missingValuesData = [
+      { column: 'Age', missing: 5 },
+      { column: 'Salary', missing: 0 },
+      { column: 'Department', missing: 2 },
+      { column: 'Temperature', missing: 3 },
+      { column: 'Humidity', missing: 1 },
+      { column: 'Location', missing: 0 },
+    ];
+    const dataTypeIssuesData = [
+      { column: 'Age', issue: 'String values found', suggestion: 'Convert to Number' },
+      { column: 'Salary', issue: 'Negative values', suggestion: 'Check data source' },
+      { column: 'Temperature', issue: 'Mixed types', suggestion: 'Standardize format' },
+    ];
+
+    function createMissingValueCard(item) {
+      const card = document.createElement('div');
+      card.className =
+        'glass rounded-2xl border border-neon shadow-neon-glow p-4 flex flex-col space-y-2 cursor-pointer hover:bg-cyan-900/30 transition';
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', `Missing values in column ${item.column}: ${item.missing}`);
+
+      const title = document.createElement('p');
+      title.className = 'font-semibold text-cyan-300 text-lg';
+      title.textContent = item.column;
+
+      const missingCount = document.createElement('p');
+      missingCount.className = 'text-cyan-400';
+      missingCount.textContent = `Missing values: ${item.missing}`;
+
+      const actions = document.createElement('div');
+      actions.className = 'flex space-x-4';
+
+      const autofillMeanBtn = document.createElement('button');
+      autofillMeanBtn.className =
+        'px-3 py-1 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 font-semibold shadow-neon-glow hover:from-blue-500 hover:to-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition text-sm';
+      autofillMeanBtn.textContent = 'Auto-fill Mean';
+      autofillMeanBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showToast(`Auto-filled missing values in ${item.column} with mean`, 'success');
+        updateCleaningProgress();
+      });
+
+      const autofillModeBtn = document.createElement('button');
+      autofillModeBtn.className =
+        'px-3 py-1 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 font-semibold shadow-neon-glow hover:from-blue-500 hover:to-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition text-sm';
+      autofillModeBtn.textContent = 'Auto-fill Mode';
+      autofillModeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showToast(`Auto-filled missing values in ${item.column} with mode`, 'success');
+        updateCleaningProgress();
+      });
+
+      const dropRowsBtn = document.createElement('button');
+      dropRowsBtn.className =
+        'px-3 py-1 rounded-full border border-red-500 text-red-400 font-semibold hover:bg-red-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-500 transition text-sm';
+      dropRowsBtn.textContent = 'Drop Rows';
+      dropRowsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showToast(`Dropped rows with missing values in ${item.column}`, 'success');
+        updateCleaningProgress();
+      });
+
+      actions.appendChild(autofillMeanBtn);
+      actions.appendChild(autofillModeBtn);
+      actions.appendChild(dropRowsBtn);
+
+      card.appendChild(title);
+      card.appendChild(missingCount);
+      card.appendChild(actions);
+
+      return card;
+    }
+
+    function createDataTypeIssueCard(item) {
+      const card = document.createElement('div');
+      card.className =
+        'glass rounded-2xl border border-neon shadow-neon-glow p-4 flex flex-col space-y-2 cursor-pointer hover:bg-cyan-900/30 transition';
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', `Data type issue in column ${item.column}: ${item.issue}`);
+
+      const title = document.createElement('p');
+      title.className = 'font-semibold text-cyan-300 text-lg';
+      title.textContent = item.column;
+
+      const issue = document.createElement('p');
+      issue.className = 'text-red-400 font-semibold';
+      issue.textContent = item.issue;
+
+      const suggestion = document.createElement('p');
+      suggestion.className = 'text-cyan-400 italic';
+      suggestion.textContent = `Suggestion: ${item.suggestion}`;
+
+      const fixBtn = document.createElement('button');
+      fixBtn.className =
+        'mt-2 px-4 py-2 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-900 font-semibold shadow-neon-glow hover:from-blue-500 hover:to-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition self-start';
+      fixBtn.textContent = "Let's clean this column?";
+      fixBtn.addEventListener('click', () => {
+        showToast(`Applied fix to ${item.column}`, 'success');
+        updateCleaningProgress();
+      });
+
+      card.appendChild(title);
+      card.appendChild(issue);
+      card.appendChild(suggestion);
+      card.appendChild(fixBtn);
+
+      return card;
+    }
+
+    function updateCleaningProgress() {
+      let currentWidth = parseInt(cleaningProgressBar.style.width) || 0;
+      if (currentWidth < 100) {
+        currentWidth += 20;
+        cleaningProgressBar.style.width = currentWidth + '%';
+        cleaningProgressBar.setAttribute('aria-valuenow', currentWidth);
+        cleaningStatus.textContent = `Cleaning progress: ${currentWidth}%`;
+      }
+      if (currentWidth >= 100) {
+        cleaningStatus.textContent = 'Data cleaning complete!';
+      }
+    }
+
+    function loadDataCleaning() {
+      missingValuesList.innerHTML = '';
+      dataTypeIssuesList.innerHTML = '';
+      cleaningProgressBar.style.width = '0%';
+      cleaningProgressBar.setAttribute('aria-valuenow', 0);
+      cleaningStatus.textContent = 'No cleaning in progress';
+
+      missingValuesData.forEach((item) => {
+        missingValuesList.appendChild(createMissingValueCard(item));
+      });
+      dataTypeIssuesData.forEach((item) => {
+        dataTypeIssuesList.appendChild(createDataTypeIssueCard(item));
+      });
+    }
+    loadDataCleaning();
+
+    // Statistical Analysis Page - mock values
+    document.getElementById('meanValue').textContent = '45.6';
+    document.getElementById('medianValue').textContent = '44';
+    document.getElementById('modeValue').textContent = '42';
+    document.getElementById('stdDevValue').textContent = '5.3';
+
+    // Download CSV button (mock)
+    document.getElementById('downloadCSVBtn').addEventListener('click', () => {
+      showToast('CSV downloaded (mock)', 'success');
+    });
+
+    // Visualization Page - Chart.js setup
+    const chartCanvas = document.getElementById('chartCanvas');
+    let chartInstance = null;
+
+    const chartTypeSelect = document.getElementById('chartType');
+    const xAxisSelect = document.getElementById('xAxis');
+    const yAxisSelect = document.getElementById('yAxis');
+    const exportPNGBtn = document.getElementById('exportPNGBtn');
+    const fullScreenBtn = document.getElementById('fullScreenBtn');
+    const helpHeatmapBtn = document.getElementById('helpHeatmapBtn');
+
+    // Sample data for charts
+    const sampleData = {
+      labels: ['A', 'B', 'C', 'D', 'E', 'F'],
+      datasets: [
+        {
+          label: 'Sample Dataset',
+          data: [12, 19, 3, 5, 2, 3],
+          backgroundColor: [
+            'rgba(14, 165, 233, 0.7)',
+            'rgba(56, 189, 248, 0.7)',
+            'rgba(125, 211, 252, 0.7)',
+            'rgba(34, 211, 238, 0.7)',
+            'rgba(6, 182, 212, 0.7)',
+            'rgba(14, 165, 233, 0.7)',
+          ],
+          borderColor: 'rgba(14, 165, 233, 1)',
+          borderWidth: 1,
+        },
+      ],
+    };
+
+    function renderChart() {
+      const type = chartTypeSelect.value;
+      const xCol = xAxisSelect.value;
+      const yCol = yAxisSelect.value;
+
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      let config = {
+        type: type === 'heatmap' ? 'matrix' : type,
+        data: sampleData,
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              labels: {
+                color: '#38bdf8',
+                font: { family: "'Exo 2', sans-serif" },
+              },
+            },
+            tooltip: {
+              enabled: true,
+              backgroundColor: '#0ea5e9',
+              titleColor: '#fff',
+              bodyColor: '#fff',
+            },
+          },
+          scales: {},
+        },
+      };
+
+      if (type === 'scatter') {
+        config = {
+          type: 'scatter',
+          data: {
+            datasets: [
+              {
+                label: 'Sample Scatter',
+                data: [
+                  { x: 1, y: 3 },
+                  { x: 2, y: 7 },
+                  { x: 3, y: 4 },
+                  { x: 4, y: 6 },
+                  { x: 5, y: 5 },
+                ],
+                backgroundColor: 'rgba(14, 165, 233, 0.7)',
+                borderColor: 'rgba(14, 165, 233, 1)',
+                pointRadius: 6,
+                pointHoverRadius: 8,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              x: {
+                title: { display: true, text: xCol || 'X Axis', color: '#38bdf8' },
+                ticks: { color: '#38bdf8' },
+                grid: { color: '#0f172a' },
+              },
+              y: {
+                title: { display: true, text: yCol || 'Y Axis', color: '#38bdf8' },
+                ticks: { color: '#38bdf8' },
+                grid: { color: '#0f172a' },
+              },
+            },
+            plugins: {
+              legend: { labels: { color: '#38bdf8' } },
+              tooltip: {
+                backgroundColor: '#0ea5e9',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+              },
+            },
+          },
+        };
+      } else if (type === 'heatmap') {
+        // Chart.js does not support heatmap natively, so show a placeholder
+        ctx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+        ctx.font = '20px Exo 2, sans-serif';
+        ctx.fillStyle = '#38bdf8';
+        ctx.textAlign = 'center';
+        ctx.fillText('Heatmap visualization coming soon!', chartCanvas.width / 2, chartCanvas.height / 2);
+        return;
+      }
+
+      chartInstance = new Chart(chartCanvas, config);
+    }
+
+    chartTypeSelect.addEventListener('change', renderChart);
+    xAxisSelect.addEventListener('change', renderChart);
+    yAxisSelect.addEventListener('change', renderChart);
+
+    exportPNGBtn.addEventListener('click', () => {
+      if (!chartInstance) return;
+      const link = document.createElement('a');
+      link.download = 'chart.png';
+      link.href = chartCanvas.toDataURL('image/png');
+      link.click();
+      showToast('Chart exported as PNG', 'success');
+    });
+
+    fullScreenBtn.addEventListener('click', () => {
+      if (!chartCanvas) return;
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        chartCanvas.requestFullscreen();
+      }
+    });
+
+    helpHeatmapBtn.addEventListener('click', () => {
+      chartTypeSelect.value = 'heatmap';
+      renderChart();
+      showToast('Switched to heatmap visualization (placeholder)', 'success');
+    });
+
+    // Initialize chart on page load
+    renderChart();
+
+    // Dashboard View Tabs
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    tabButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        tabButtons.forEach((b) => {
+          b.classList.remove('border-cyan-400');
+          b.setAttribute('aria-selected', 'false');
+          b.setAttribute('tabindex', '-1');
+        });
+        tabPanels.forEach((panel) => panel.classList.add('hidden'));
+
+        btn.classList.add('border-cyan-400');
+        btn.setAttribute('aria-selected', 'true');
+        btn.setAttribute('tabindex', '0');
+        const tab = btn.getAttribute('data-tab');
+        document.getElementById(tab).classList.remove('hidden');
+      });
+    });
+
+    // Settings Page toggle switch animation
+    const darkLightSwitch = document.getElementById('darkLightSwitch');
+    const dot = darkLightSwitch.nextElementSibling.querySelector('.dot');
+
+    darkLightSwitch.addEventListener('change', () => {
+      if (darkLightSwitch.checked) {
+        dot.classList.add('translate-x-6');
+        darkMode = false;
+      } else {
+        dot.classList.remove('translate-x-6');
+        darkMode = true;
+      }
+      updateTheme();
+    });
+
+    // AI Assistant Chat Bubble and Chat Window
+    const aiAssistant = document.getElementById('aiAssistant');
+    const aiChatWindow = document.getElementById('aiChatWindow');
+    const closeAiChat = document.getElementById('closeAiChat');
+    const aiChatForm = document.getElementById('aiChatForm');
+    const aiChatInput = document.getElementById('aiChatInput');
+    const aiChatMessages = document.getElementById('aiChatMessages');
+    const voiceInputBtn = document.getElementById('voiceInputBtn');
+
+    aiAssistant.addEventListener('click', () => {
+      aiChatWindow.classList.toggle('hidden');
+      if (!aiChatWindow.classList.contains('hidden')) {
+        aiChatInput.focus();
+      }
+    });
+    closeAiChat.addEventListener('click', () => {
+      aiChatWindow.classList.add('hidden');
+      aiAssistant.focus();
+    });
+
+    // Simple AI responses (mock)
+    function aiRespond(message) {
+      const lower = message.toLowerCase();
+      if (lower.includes('scatter plot')) {
+        return 'A scatter plot displays values for typically two variables for a set of data.';
+      }
+      if (lower.includes('correlation')) {
+        return 'Correlation measures the relationship between two variables, ranging from -1 to 1.';
+      }
+      if (lower.includes('heatmap')) {
+        return 'A heatmap is a graphical representation of data where values are depicted by color.';
+      }
+      if (lower.includes('help')) {
+        return 'Try uploading CSV files and explore the visualization page!';
+      }
+      return "I'm here to help! Try asking about data analysis or visualization.";
+    }
+
+    function appendMessage(text, fromAI = true) {
+      const msg = document.createElement('div');
+      msg.className = fromAI
+        ? 'bg-cyan-700/70 rounded-xl p-3 max-w-[80%] shadow-neon-glow'
+        : 'bg-blue-600/70 rounded-xl p-3 max-w-[80%] self-end shadow-neon-glow';
+      msg.textContent = text;
+      aiChatMessages.appendChild(msg);
+      aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+    }
+
+    aiChatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const userInput = aiChatInput.value.trim();
+      if (!userInput) return;
+      appendMessage(userInput, false);
+      aiChatInput.value = '';
+      setTimeout(() => {
+        const response = aiRespond(userInput);
+        appendMessage(response, true);
+      }, 800);
+    });
+
+    // Voice input (Web Speech API)
+    let recognition;
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      voiceInputBtn.addEventListener('click', () => {
+        recognition.start();
+        voiceInputBtn.classList.add('text-blue-400');
+      });
+
+      recognition.addEventListener('result', (event) => {
+        const transcript = event.results[0][0].transcript;
+        aiChatInput.value = transcript;
+        voiceInputBtn.classList.remove('text-blue-400');
+        aiChatInput.focus();
+      });
+
+      recognition.addEventListener('end', () => {
+        voiceInputBtn.classList.remove('text-blue-400');
+      });
+    } else {
+      voiceInputBtn.style.display = 'none';
+    }
+  </script>
+ </body>
+</html>
